@@ -1,0 +1,12 @@
+{
+  "id": "patchdashboard",
+  "_default": {},
+  "testing": {
+    "testing-patchdashboard": {
+      "host": "patchdashboard.local",
+      "worker": {
+        "count": 1
+      }
+    }
+  }
+}
