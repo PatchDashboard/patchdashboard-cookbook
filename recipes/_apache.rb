@@ -18,28 +18,50 @@ package 'apache' do
   end
 end
 
-
-apache_module 'mpm_event' do
-  enable false
+## Enable mod_rewrite
+execute 'enable rewrite' do
+  command 'sudo a2enmod rewrite || exit 0'
 end
-enable_mods = ["mpm_prefork", "ssl", "rewrite"]
 
-enable_mods.each do |mods_to_enable|
-  apache_module "enable #{mods_to_enable}" do
-    enable true
-  end
+## Enable mod_ssl
+execute 'enable ssl' do
+  command 'sudo a2enmod ssl ||exit 0'
 end
+
+execute 'disable mpm_event' do
+  command 'sudo a2dismod mpm_event||exit 0'
+end
+
+
+execute 'enable mpm_prefork' do
+  command 'sudo a2enmod mpm_prefork ||exit 0'
+end
+
+
+execute 'restart apache' do
+  command 'sudo service apache2 restart'
+end
+
 
 
 site_name = node['patchdashboard']['apache']['host']
-web_app "patchdashboard" do
-  server_name "#{site_name}"
-  server_alias "www.#{site_name}"
-  docroot node['patchdashboard']['apache']['path']
-  case node[:platform]
-    when 'ubuntu'
-      cookbook 'apache2'
-    when 'centos', 'redhat'
-      cookbook 'httpd'
-  end
+
+case node[:platform]
+  when 'ubuntu'
+    template_dest = '/etc/apache2/sites-available/patchdashboard.conf'
+  else
+    template_dest = '/etc/httpd/conf.d/patchdashboard.conf'
+end
+
+template "#{template_dest}" do
+  source 'vhost.erb'
+  mode '0644'
+  variables ({
+    :server_name => node['patchdashboard']['apache']['host'],
+    :docroot => node['patchdashboard']['apache']['path']
+    })
+end
+
+execute 'enable patchdashboard vhost' do
+  command 'a2ensite patchdashboard && service apache2 restart || exit 0'
 end

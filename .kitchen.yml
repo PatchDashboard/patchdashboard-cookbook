@@ -1,11 +1,14 @@
 ---
 driver:
   name: vagrant
+  vagrantfiles:
+    - Vagrantfile.rb
   customize:
     memory: 4096
     cpus: 4
     cpuexecutioncap: 80
-
+  network:
+    - ["private_network", {ip: "192.168.12.80"}]
 provisioner:
   name: chef_solo
   client_rb:
@@ -13,7 +16,10 @@ provisioner:
 
 platforms:
   - name: ubuntu-14.04
-
+    driver_config:
+      network:
+        - ["forwarded_port", {guest: 80, host: 8885}]
+        - ["forwarded_port", {guest: 443, host: 4445}]
 suites:
   - name: testing
     run_list:
