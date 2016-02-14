@@ -18,20 +18,24 @@ package 'apache' do
   end
 end
 
-## Enable mod_rewrite
-execute 'enable rewrite' do
-  command 'sudo a2enmod rewrite && service apache2 reload ||exit 0'
+
+apache_module 'mpm_event' do
+  enable false
+end
+enable_mods = ["mpm_prefork", "ssl", "rewrite"]
+
+enable_mods.each do |mods_to_enable|
+  apache_module "enable #{mods_to_enable}" do
+    enable true
+  end
 end
 
-## Enable mod_ssl
-execute 'enable ssl' do
-  command 'sudo a2enmod ssl && service apache2 reload ||exit 0'
-end
 
 site_name = node['patchdashboard']['apache']['host']
 web_app "patchdashboard" do
   server_name "#{site_name}"
   server_alias "www.#{site_name}"
+  docroot node['patchdashboard']['apache']['path']
   case node[:platform]
     when 'ubuntu'
       cookbook 'apache2'
