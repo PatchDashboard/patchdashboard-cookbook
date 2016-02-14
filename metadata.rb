@@ -1,9 +1,9 @@
 name             'patchdashboard'
 maintainer       'Jon Harris'
 maintainer_email 'patchdashboard-cookbook@jonsjava.com'
-license          'Apache Foundation'
+license          'Licensed under the Apache License, Version 2.0'
 description      'Installs/Configures patchdashboard'
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'
+long_description 'Installs Patch Management Dashboard.'
 version          '0.1.0'
 
 
